@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="referrer" content="same-origin">
+        <title>Image Generator</title>
+        <link href="https://cdn.jsdelivr.net/npm/reset-css@5.0.1/reset.min.css" rel="stylesheet">
+        <link rel="icon" type="image/png" href="./favicon.png" />
+        <link href="./style.css" rel="stylesheet">
+    </head>
+    <body style="height: 100vh; display: flex;">
+        <main style="text-align: center; margin: 50px auto 0 auto; width: fit-content;">
+            <h1>Image Generator</h1>
+            <img
+                style="margin-top: 40px; margin-bottom: 40px;"
+                height="300px"
+                id="targetImage"
+                src="./questionMark.png"/>
+            <div>
+                <button id="generateKittenButton" type="button" style="cursor: pointer;">Random Kitten</button>
+            </div>
+            <div style="margin: 20px 0">
+                <h2>- OR -</h2>
+            </div>
+            <div style="margin-bottom: 10px;">
+                <select id="animalType">
+                    <option value="cat">Cat</option>
+                    <option value="dog">Dog</option>
+                    <option value="bird">Bird</option>
+                    <option value="horse">Horse</option>
+                    <option value="sheep">Sheep</option>
+                    <option value="cow">Cow</option>
+                    <option value="elephant">Elephant</option>
+                    <option value="bear">Bear</option>
+                    <option value="zebra">Zebra</option>
+                    <option value="giraffe">Giraffe</option>
+                    <option value="lion">Lion</option>
+                    <option value="tiger">Tiger</option>
+                    <option value="penguin">Penguin</option>
+                    <option value="panda">Panda</option>
+                    <option value="fox">Fox</option>
+                    <option value="wolf">Wolf</option>
+                    <option value="monkey">Monkey</option>
+                    <option value="chicken">Chicken</option>
+                </select>
+                <select id="animalColor" style="margin-left: 10px;">
+                    <option value="black">Black</option>
+                    <option value="white">White</option>
+                    <option value="brown">Brown</option>
+                    <option value="gray">Gray</option>
+                    <option value="orange">Orange</option>
+                    <option value="yellow">Yellow</option>
+                    <option value="red">Red</option>
+                    <option value="green">Green</option>
+                    <option value="blue">Blue</option>
+                    <option value="purple">Purple</option>
+                    <option value="pink">Pink</option>
+                </select>
+                <select id="animalAge" style="margin-left: 10px;">
+                    <option value="baby">Baby</option>
+                    <option value="young">Young</option>
+                    <option value="adult">Adult</option>
+                    <option value="old">Old</option>
+                </select>
+            </div>
+            <div style="margin-bottom: 10px;">
+                <input id="aiInput" placeholder="Customize your animal even further with a random prompt" type="text" style="width: 600px; font-size: 1.2em;"/>
+            </div>
+            <div>
+                <button id="generateAiButton" type="button" style="cursor: pointer;">AI generated animal</button>
+            </div>
+            <div style="margin-top: 10px; padding-bottom: 40px; width: 95vw; overflow-x: hidden; overflow-y: clip;">
+                <p id="logs" style="color: red;"></p>
+            </div>
+        </main>
+        <script src="https://cdn.jsdelivr.net/npm/tsparticles-confetti@2.10.1/tsparticles.confetti.bundle.min.js"></script>
+        <script>
+            let confettiConfig = null;
+            let unsplashSuccess = false;
+            let openaiSuccess = false;
+            document.getElementById('targetImage').addEventListener('load', () => {
+                if (confettiConfig) {
+                    confetti(confettiConfig);
+                }
+            });
+            let loading = false;
+            const setLoading = (isLoading) => {
+                loading = isLoading;
+                document.getElementById('generateKittenButton').disabled = isLoading;
+                document.getElementById('generateAiButton').disabled = isLoading;
+            }
+            const fetchImage = async (url, cb) => {
+                try
+                {
+                    document.getElementById('logs').innerText = "";
+
+                    const response = await fetch(url, { method: 'POST' });
+                    setLoading(false);
+
+                    if (!response.ok) {
+                        document.getElementById('logs').innerText = response.status + ": " + (await response.text());
+                        return;
+                    }
+
+                    const imageUrl = await response.text();
+                    document.getElementById("targetImage").src = imageUrl;
+                    cb && cb();
+                } catch (error) {
+                    setLoading(false);
+                    alert(error.message);
+                }
+            };
+            document.getElementById('generateKittenButton').addEventListener('click', async () => {
+                if (loading) return;
+                setLoading(true);
+                
+                confettiConfig = !unsplashSuccess ? {
+                    particleCount: 100,
+                    spread: 70,
+                    origin: { y: 0.6 },
+                } : null;
+                fetchImage("https://localhost:5001/api/images/kittens", () => { unsplashSuccess = true; });
+            });
+            document.getElementById('generateAiButton').addEventListener('click', async () => {
+                if (loading) return;
+                const inputVal = document.getElementById('aiInput').value;
+                const animalType = document.getElementById('animalType').value;
+                const animalColor = document.getElementById('animalColor').value;
+                const animalAge = document.getElementById('animalAge').value;
+
+                const url = "https://localhost:5001/api/images/animals/ai?" +
+                    "animalType=" + encodeURIComponent(animalType) +
+                    "&animalColor=" + encodeURIComponent(animalColor) +
+                    "&animalAge=" + encodeURIComponent(animalAge) +
+                    "&query=" + encodeURIComponent(inputVal);
+
+                console.log(url);
+
+                confettiConfig = !openaiSuccess ? {
+                    particleCount: 50,
+                    spread: 100,
+                    origin: { y: 0.6 },
+                    shapes: ["text"],
+                    startVelocity: 30,
+                    ticks: 50,
+                    scalar: 4,
+                    shapeOptions: {
+                        text: {
+                            value: ["🐶", "🐱", "🐦", "🐴", "🐑", "🐄", "🐘", "🐻", "🦓", "🦒", "🦁", "🐯", "🐧", "🐼", "🦊", "🐺", "🐒", "🐓"],
+                        }
+                    },
+                } : null;
+
+                setLoading(true);
+                fetchImage(url, () => { openaiSuccess = true; });
+            });
+        </script>
+    </body>
+</html>

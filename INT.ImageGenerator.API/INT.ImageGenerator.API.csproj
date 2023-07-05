@@ -1,0 +1,27 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+	<PropertyGroup>
+		<TargetFramework>net6.0</TargetFramework>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Mensura.Tools.Api.Core" Version="8.2.2" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\INT.ImageGenerator.Business\INT.ImageGenerator.Business.csproj" />
+	</ItemGroup>
+
+	<Target Name="CopyPackages" AfterTargets="Build">
+		<ItemGroup>
+			<PackageReferenceFiles Condition="%(PackageReference.CopyToOutputDirectory) != ''" Include="$(NugetPackageRoot)\%(PackageReference.PackageName)\%(PackageReference.Version)\%(PackageReference.CopyToOutputDirectory)" />
+		</ItemGroup>
+		<Message Importance="high" Text="Files: %(PackageReference.PackageName)" />
+		<Copy SourceFiles="@(PackageReferenceFiles)" DestinationFolder="$(OutDir)" />
+	</Target>
+	<Target Name="CopyPackagesForPublish" BeforeTargets="PrepareForPublish">
+		<ItemGroup>
+			<PackageReferenceFiles Condition="%(PackageReference.CopyToOutputDirectory) != ''" Include="$(NugetPackageRoot)\%(PackageReference.PackageName)\%(PackageReference.Version)\%(PackageReference.CopyToOutputDirectory)" />
+		</ItemGroup>
+		<Copy SourceFiles="@(PackageReferenceFiles)" DestinationFolder="$(PublishDir)" />
+	</Target>
+</Project>
