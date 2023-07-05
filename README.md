@@ -1,3 +1,20 @@
+Install dependencies:
+```
+npm install --global serve
+```
+
+To run frontend (port 3000):
+```
+cd INT-ImageGenerator.WebUI
+npm install --global serve
+# Go to http://localhost:3000
+```
+
+Back-end configuration:
+Update INT.ImageGenerator.API/Properties/launchSettings.json to run https on port 5001
+
+-----
+
 Unsplash .NET SDK: https://github.com/unsplash-net/unsplash-net
 OpenAI API .NET SDK: https://github.com/OkGoDoIt/OpenAI-API-dotnet
 
