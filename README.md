@@ -6,7 +6,7 @@ npm install --global serve
 To run frontend (port 3000):
 ```
 cd INT-ImageGenerator.WebUI
-npm install --global serve
+serve # Starts web app
 # Go to http://localhost:3000
 ```
 
